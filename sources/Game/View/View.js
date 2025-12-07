@@ -3,6 +3,7 @@ import Chunks from './Chunks.js'
 import Grass from './Grass.js'
 import Noises from './Noises.js'
 import Player from './Player.js'
+import Projectiles from './Projectiles.js'
 import Renderer from './Renderer.js'
 import Sky from './Sky.js'
 import Terrains from './Terrains.js'
@@ -35,6 +36,7 @@ export default class View
         this.water = new Water()
         this.terrains = new Terrains()
         this.chunks = new Chunks()
+        this.projectiles = new Projectiles()
         this.player = new Player()
         this.grass = new Grass()
     }
@@ -53,6 +55,7 @@ export default class View
         this.water.update()
         this.terrains.update()
         this.chunks.update()
+        this.projectiles.update()
         this.player.update()
         this.grass.update()
         this.camera.update()

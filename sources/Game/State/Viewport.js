@@ -8,7 +8,6 @@ export default class Viewport
         this.game = Game.getInstance()
         this.state = State.getInstance()
         this.controls = this.state.controls
-        this.domElement = this.game.domElement
 
         this.width = null
         this.height = null
@@ -19,6 +18,7 @@ export default class Viewport
 
         this.setPointerLock()
         this.setFullscreen()
+        this.setPause()
 
         this.controls.events.on('pointerLockDown', () =>
         {
@@ -30,7 +30,21 @@ export default class Viewport
             this.fullscreen.toggle()
         })
 
+        this.controls.events.on('pauseDown', () =>
+        {
+            this.pause.toggle()
+        })
+
         this.resize()
+
+        // Activate pointer lock automatically on first click
+        window.addEventListener('click', () =>
+        {
+            if(!this.pointerLock.active && !this.pause.active)
+            {
+                this.pointerLock.activate()
+            }
+        }, { once: false })
     }
 
     setPointerLock()
@@ -48,7 +62,10 @@ export default class Viewport
         
         this.pointerLock.activate = () =>
         {
-            this.domElement.requestPointerLock()
+            if(this.game.domElement)
+                this.game.domElement.requestPointerLock()
+            else
+                document.body.requestPointerLock()
         }
 
         this.pointerLock.deactivate = () =>
@@ -59,7 +76,73 @@ export default class Viewport
         document.addEventListener('pointerlockchange', () =>
         {
             this.pointerLock.active = !!document.pointerLockElement
+            
+            // If pointer lock is deactivated, activate pause
+            if(!this.pointerLock.active && !this.pause.active)
+            {
+                this.pause.activate()
+            }
         })
+    }
+
+    setPause()
+    {
+        this.pause = {}
+        this.pause.active = false
+        this.pause.element = null
+        
+        this.pause.toggle = () =>
+        {
+            if(this.pause.active)
+                this.pause.deactivate()
+            else
+                this.pause.activate()
+        }
+        
+        this.pause.activate = () =>
+        {
+            this.pause.active = true
+            this.pointerLock.deactivate()
+            this.pause.show()
+        }
+
+        this.pause.deactivate = () =>
+        {
+            this.pause.active = false
+            this.pause.hide()
+            this.pointerLock.activate()
+        }
+        
+        this.pause.show = () =>
+        {
+            if(!this.pause.element)
+            {
+                this.pause.element = document.createElement('div')
+                this.pause.element.classList.add('pause-menu')
+                this.pause.element.innerHTML = `
+                    <div class="pause-content">
+                        <h1>PAUSE</h1>
+                        <p>Appuyez sur <span class="key">ECHAP</span> ou cliquez pour reprendre</p>
+                    </div>
+                `
+                document.body.appendChild(this.pause.element)
+                
+                // Click to resume
+                this.pause.element.addEventListener('click', () =>
+                {
+                    this.pause.deactivate()
+                })
+            }
+            this.pause.element.style.display = 'flex'
+        }
+        
+        this.pause.hide = () =>
+        {
+            if(this.pause.element)
+            {
+                this.pause.element.style.display = 'none'
+            }
+        }
     }
 
     setFullscreen()
@@ -77,7 +160,10 @@ export default class Viewport
         
         this.fullscreen.activate = () =>
         {
-            this.domElement.requestFullscreen()
+            if(this.game.domElement)
+                this.game.domElement.requestFullscreen()
+            else
+                document.body.requestFullscreen()
         }
 
         this.fullscreen.deactivate = () =>

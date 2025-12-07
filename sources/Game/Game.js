@@ -22,6 +22,7 @@ export default class Game
         this.debug = new Debug()
         this.state = new State()
         this.view = new View()
+        this.domElement = this.view.renderer.instance.domElement
         
         window.addEventListener('resize', () =>
         {

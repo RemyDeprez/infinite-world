@@ -23,7 +23,54 @@ export default class Player
         this.position.previous = vec3.clone(this.position.current)
         this.position.delta = vec3.create()
 
+        this.jump = {}
+        this.jump.force = 5
+        this.jump.gravity = 20
+        this.jump.velocity = 0
+        this.jump.isJumping = false
+        this.jump.groundElevation = 0
+
         this.camera = new Camera(this)
+
+        this.controls.events.on('jumpDown', () =>
+        {
+            if(!this.jump.isJumping && this.camera.mode !== Camera.MODE_FLY)
+            {
+                this.jump.isJumping = true
+                this.jump.velocity = this.jump.force
+            }
+        })
+
+        this.controls.events.on('shootDown', () =>
+        {
+            this.shoot()
+        })
+    }
+
+    shoot()
+    {
+        // Only shoot if pointer lock is active (not in pause menu)
+        if(!this.state.viewport.pointerLock.active)
+            return
+            
+        // Calculate shoot position (slightly in front and above player)
+        const shootPosition = vec3.create()
+        vec3.copy(shootPosition, this.position.current)
+        shootPosition[1] += 1.5 // Eye level
+        
+        // Calculate shoot direction based on camera orientation
+        const direction = vec3.create()
+        const theta = this.camera.thirdPerson.theta
+        const phi = this.camera.thirdPerson.phi
+        
+        direction[0] = -Math.sin(theta) * Math.sin(phi)
+        direction[1] = -Math.cos(phi)
+        direction[2] = -Math.cos(theta) * Math.sin(phi)
+        
+        vec3.normalize(direction, direction)
+        
+        // Create projectile
+        this.state.projectiles.create(shootPosition, direction)
     }
 
     update()
@@ -79,8 +126,27 @@ export default class Player
         const elevation = chunks.getElevationForPosition(this.position.current[0], this.position.current[2])
 
         if(elevation)
-            this.position.current[1] = elevation
+            this.jump.groundElevation = elevation
         else
-            this.position.current[1] = 0
+            this.jump.groundElevation = 0
+
+        // Update jump physics
+        if(this.jump.isJumping)
+        {
+            this.jump.velocity -= this.jump.gravity * this.time.delta
+            this.position.current[1] += this.jump.velocity * this.time.delta
+
+            // Check if landed
+            if(this.position.current[1] <= this.jump.groundElevation)
+            {
+                this.position.current[1] = this.jump.groundElevation
+                this.jump.isJumping = false
+                this.jump.velocity = 0
+            }
+        }
+        else
+        {
+            this.position.current[1] = this.jump.groundElevation
+        }
     }
 }

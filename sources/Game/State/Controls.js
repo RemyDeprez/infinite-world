@@ -76,6 +76,10 @@ export default class Controls
                 codes: [ 'ControlLeft', 'KeyC' ],
                 name: 'crouch'
             },
+            {
+                codes: [ 'Escape' ],
+                name: 'pause'
+            },
         ]
 
         // Down keys
@@ -128,6 +132,12 @@ export default class Controls
         window.addEventListener('pointerdown', (event) =>
         {
             this.pointer.down = true
+            
+            // Only shoot on left click (button 0)
+            if(event.button === 0)
+            {
+                this.events.emit('shootDown')
+            }
         })
 
         window.addEventListener('pointermove', (event) =>

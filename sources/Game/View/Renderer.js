@@ -40,6 +40,9 @@ export default class Renderer
         this.instance.domElement.style.width = '100%'
         this.instance.domElement.style.height = '100%'
 
+        // Add to DOM
+        document.body.appendChild(this.instance.domElement)
+
         // this.instance.setClearColor(0x414141, 1)
         this.instance.setClearColor(this.clearColor, 1)
         this.instance.setSize(this.viewport.width, this.viewport.height)

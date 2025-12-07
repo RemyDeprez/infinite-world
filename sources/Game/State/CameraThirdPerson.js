@@ -39,7 +39,7 @@ export default class CameraThirdPerson
             return
 
         // Phi and theta
-        if(this.controls.pointer.down || this.viewport.pointerLock.active)
+        if(this.viewport.pointerLock.active)
         {
             const normalisedPointer = this.viewport.normalise(this.controls.pointer.delta)
             this.phi -= normalisedPointer.y * 2
