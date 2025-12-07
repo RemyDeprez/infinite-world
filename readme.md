@@ -10,5 +10,5 @@ No purpose, just having fun.
 
 ```
 npm install
-npm run devdz
+npm run dev
 ```
