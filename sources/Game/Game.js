@@ -1,6 +1,7 @@
 import Debug from '@/Debug/Debug.js'
 import State from '@/State/State.js'
 import View from '@/View/View.js'
+import WelcomeMessage from '@/Debug/WelcomeMessage.js'
 
 export default class Game
 {
@@ -23,6 +24,7 @@ export default class Game
         this.state = new State()
         this.view = new View()
         this.domElement = this.view.renderer.instance.domElement
+        this.welcomeMessage = new WelcomeMessage()
         
         window.addEventListener('resize', () =>
         {
